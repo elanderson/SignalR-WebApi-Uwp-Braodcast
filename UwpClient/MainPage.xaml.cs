@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
+using Microsoft.AspNet.SignalR.Client;
+using System.ComponentModel;
+using Windows.UI.Core;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -25,6 +16,18 @@ namespace UwpClient
         public MainPage()
         {
             this.InitializeComponent();
+            InitilizeHub();
+        }
+
+        private async void InitilizeHub()
+        {
+            var hubConnection = new HubConnection("http://localhost:50869");
+            var hubProxy = hubConnection.CreateHubProxy("BroadcastHub");
+
+            hubProxy.On<DateTime>("Broadcast",
+                                  async data => await Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+                                                                          () => BroadcastResults.Text = data.ToString()));
+            await hubConnection.Start();
         }
     }
 }
